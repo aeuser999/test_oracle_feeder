@@ -24,6 +24,7 @@ export class Binance extends Quoter {
 
       if (symbol) {
         this.setPrice(symbol, num(crypto.price))
+console.log('Binance: ' + symbol + ' - ' + num(crypto.price))
       }
     }
   }

@@ -18,12 +18,20 @@ export class Bitfinex extends WebSocketQuoter {
 
   private getBaseCurrency(symbol) {
     const currency = getBaseCurrency(symbol)
-    return currency === 'USDT' ? 'UST' : currency
+
+    let translateCurrency = currency == 'USDT' ? 'UST' : currency
+    translateCurrency = translateCurrency == 'USDC' ? 'UDC' : translateCurrency
+
+    return translateCurrency
   }
 
   private getQuoteCurrency(symbol) {
     const currency = getQuoteCurrency(symbol)
-    return currency === 'USDT' ? 'UST' : currency
+
+    let translateCurrency = currency == 'USDT' ? 'UST' : currency
+    translateCurrency = translateCurrency == 'USDC' ? 'UDC' : translateCurrency
+
+    return translateCurrency
   }
 
   public async initialize(): Promise<void> {
@@ -38,6 +46,7 @@ export class Bitfinex extends WebSocketQuoter {
 
           this.setTrades(symbol, trades)
           this.setPrice(symbol, trades[trades.length - 1].price)
+console.log ('Bitfinex - Init: ' + symbol + ' - ' + trades[trades.length - 1].price)
         })
         .catch(errorHandler)
     }
@@ -48,7 +57,7 @@ export class Bitfinex extends WebSocketQuoter {
     this.connect('wss://api-pub.bitfinex.com/ws/2')
   }
 
-  protected onConnect(): void {
+  protected onConnect(): void {  
     super.onConnect()
 
     // subscribe transaction
@@ -79,12 +88,15 @@ export class Bitfinex extends WebSocketQuoter {
           break
         }
 
-        const pair = data.pair.replace('UST', 'USDT')
-        const symbol = this.symbols.find((symbol) => symbol.replace('/', '') === pair)
+        const pair = data.pair
+console.log('Bitfinex - symbols: ' + JSON.stringify(this.symbols, null, 2))        
+        const symbol = this.symbols.find((symbol) => this.getBaseCurrency(symbol)+this.getQuoteCurrency(symbol) === pair)
         if (symbol) {
-          this.symbolByChanId[data.chanId] = symbol
+          //this.symbolByChanId[data.chanId] = symbol
+          this.symbolByChanId[data.chanId] = pair
         }
         // logger.info(`${this.constructor.name}: subscribed to ${symbol}(${data.pair})`)
+console.log ('Bitfinex: ' + symbol + ' - ' + JSON.stringify(data, null, 2))
         break
 
       default:
@@ -109,6 +121,7 @@ export class Bitfinex extends WebSocketQuoter {
     // reference: https://docs.bitfinex.com/reference#rest-public-candles
     const base = this.getBaseCurrency(symbol)
     const quote = this.getQuoteCurrency(symbol)
+
     const response = await fetch(`https://api-pub.bitfinex.com/v2/candles/trade:1m:t${base}${quote}/hist`, {
       timeout: this.options.timeout,
     }).then((res) => res.json())

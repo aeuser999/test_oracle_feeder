@@ -16,7 +16,7 @@ export default class PricesProvider {
     // Define a list where to store the end result of
     // parsing the USDT / USDC / BUSD to USD
     const CRYPTO_PRICES_TO_USD = new Array<PriceBySymbol>()
-
+console.log('getCryptoPricesAndSymbolsToWorkWith' + JSON.stringify(cryptoPrices, null, 2))
     for (const key in cryptoPrices) {
       const price = cryptoPrices[key]
       const isPricedInUSD = key.endsWith('/USD')
@@ -24,6 +24,7 @@ export default class PricesProvider {
       // When priced in USD: store the object directly in the array
       if (isPricedInUSD) {
         CRYPTO_PRICES_TO_USD.push({ [key]: price })
+console.log('isPricedInUSD: ' + key + ' - ' + price)
       } else {
         // Get base currency LUNA, ETH, BTC...
         const base = getBaseCurrency(key)
@@ -35,13 +36,17 @@ export default class PricesProvider {
         // this creates the symbol to get its price e.g. USDT/USD, BUSD/USD, ...
         const stableCoinSymbol = symbol + '/USD'
         const stableCoinPrice = cryptoPrices[stableCoinSymbol]
-
+console.log('NonUSDConversion: ' + base + ' - (times by) - ' + stableCoinSymbol + ' - ' +  stableCoinPrice)        
         // find price of asset in USD denom e.g: BTC/USD = BTC/UST * UST/USD
         const TO_USD = price.multipliedBy(stableCoinPrice)
+console.log('NonUSDConversion - Price: ' + TO_USD)        
         // store the object in the array
         CRYPTO_PRICES_TO_USD.push({ [ASSET_KEY_USD]: TO_USD })
+console.log('!isPricedInUSD: ' + key + ' - ' + price)        
       }
     }
+
+console.log('CryptoPriceToUSD: ' + JSON.stringify(CRYPTO_PRICES_TO_USD, null, 2))
 
     const data: any = _.chain(CRYPTO_PRICES_TO_USD)
       // Filter out the crypto that failed to be
@@ -75,6 +80,7 @@ export default class PricesProvider {
           )
           return {}
         } else {
+console.log('Prices-Avg:' + key + ': ' + JSON.stringify(prices) + ' - ' + average(prices))          
           // ... return a unique object with the average
           return { [key]: average(prices) }
         }
@@ -88,6 +94,8 @@ export default class PricesProvider {
         return { ...memo, [key]: value }
       }, {})
       .value()
+
+console.log('CryptoPriceToUSDFinal: ' + JSON.stringify(data, null, 2))
 
     return data
   }

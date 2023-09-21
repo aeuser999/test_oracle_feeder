@@ -45,6 +45,7 @@ export class Huobi extends WebSocketQuoter {
 
           this.setTrades(symbol, trades)
           this.setPrice(symbol, trades[trades.length - 1].price)
+console.log ('Huobi - Init: ' + symbol + ' - ' + trades[trades.length - 1].price)          
         })
         .catch((err) => {
           logger.error(`${this.constructor.name}[symbol]`, symbol)
@@ -61,7 +62,7 @@ export class Huobi extends WebSocketQuoter {
     super.onConnect()
 
     // subscribe transaction
-    // reference: https://huobiapi.github.io/docs/spot/v1/en/#market-candlestick
+    // reference: https://www.huobi.com/en-us/opend/newApiPages/?id=7ec4a4da-7773-11ed-9966-0242ac110003
     for (const symbol of this.symbols) {
       this.ws.send(`{"sub": "market.${symbol.replace('/', '').toLowerCase()}.kline.1min"}`)
     }
@@ -94,6 +95,7 @@ export class Huobi extends WebSocketQuoter {
       if (!symbol) {
         return
       }
+console.log('Huobi - symbols: ' + JSON.stringify(this.symbols, null, 2))
 
       const timestamp = +data.tick.id * 1000
       const price = num(data.tick.close)
@@ -101,6 +103,8 @@ export class Huobi extends WebSocketQuoter {
 
       this.setTrade(symbol, timestamp, price, volume, true)
       this.setPrice(symbol, price)
+
+console.log ('Huobi: ' + symbol + ' - ' + price)
 
       this.isUpdated = true
     } else {
@@ -116,7 +120,7 @@ export class Huobi extends WebSocketQuoter {
     }
 
     // Get candles from Huobi
-    // reference: https://huobiapi.github.io/docs/spot/v1/en/#get-klines-candles
+    // reference: https://www.huobi.com/en-us/opend/newApiPages/?id=7ec4a4da-7773-11ed-9966-0242ac110003
     const response = await fetch(`https://api.huobi.pro/market/history/kline?${toQueryString(params)}`).then((res) =>
       res.json()
     )

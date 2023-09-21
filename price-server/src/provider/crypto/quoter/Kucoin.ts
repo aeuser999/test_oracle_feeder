@@ -56,6 +56,7 @@ export class Kucoin extends WebSocketQuoter {
 
           this.setTrades(symbol, trades)
           this.setPrice(symbol, trades[trades.length - 1].price)
+console.log ('Kucoin - Init: ' + symbol + ' - ' + trades[trades.length - 1].price)          
         })
         .catch((error) => {
           logger.error(`${this.constructor.name}[symbol]`, symbol)
@@ -108,6 +109,8 @@ export class Kucoin extends WebSocketQuoter {
 
     const { data } = streamData
 
+console.log('Kucoin - symbol: ' + data.symbol)
+
     const symbol = data.symbol.replace('-', '/')
     const timestamp = +data.candles[0] * 1000
     const price = num(data.candles[2])
@@ -115,6 +118,8 @@ export class Kucoin extends WebSocketQuoter {
 
     this.setTrade(symbol, timestamp, price, volume, true)
     this.setPrice(symbol, price)
+
+console.log ('Kucoin: ' + symbol + ' - ' + price)
 
     this.isUpdated = true
   }

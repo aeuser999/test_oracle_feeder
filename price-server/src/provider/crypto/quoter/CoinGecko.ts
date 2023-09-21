@@ -30,6 +30,7 @@ export class CoinGecko extends Quoter {
           const price = response[key].usd
 
           this.setPrice(symbol, num(price))
+console.log ("CoinGecko: " + symbol + ' - ' + num(price))
         }
       }
     }
