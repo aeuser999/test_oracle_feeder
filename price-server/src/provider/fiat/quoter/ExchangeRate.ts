@@ -44,7 +44,7 @@ export class ExchangeRate extends Quoter {
       }).then((res) => res.json())
 
       if (!responseOpen || !responseOpen.result || !responseOpen.rates) {
-        logger.error(`${this.constructor.name}: wrong api response`, responseOpen ? JSON.stringify(response) : 'empty')
+        logger.error(`${this.constructor.name}: wrong api response`, responseOpen ? JSON.stringify(responseOpen) : 'empty')
         throw new Error('Invalid response from ExchangeRate')
       }
 
