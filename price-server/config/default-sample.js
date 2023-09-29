@@ -532,6 +532,7 @@ module.exports = {
       symbols: fiatSymbols,
       interval: 30 * 1000,
       timeout: 5000,
+	  apiKey: '', // optional
     },
     // https://fer.ee/
     fer: {
